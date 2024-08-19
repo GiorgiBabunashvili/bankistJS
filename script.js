@@ -180,6 +180,26 @@ btnTransfer.addEventListener("click", (e) => {
   }
 });
 
+//LOAN
+btnLoan.addEventListener("click", (e) => {
+  e.preventDefault();
+  const amount = +inputLoanAmount.value;
+
+  if (
+    amount > 0 &&
+    currentAccount.movements.some((mov) => mov >= amount * 0.1)
+  ) {
+    //ADD Movment
+    currentAccount.movements.push(amount);
+
+    //UI
+    updateUI(currentAccount);
+  }
+
+  inputLoanAmount.value = "";
+});
+
+//CLOSE ACCOUNT
 btnClose.addEventListener("click", (e) => {
   e.preventDefault();
 
@@ -196,6 +216,8 @@ btnClose.addEventListener("click", (e) => {
   }
 
   inputCloseUsername.value = inputClosePin.value = "";
+
+  labelWelcome.textContent = "Log in to get started";
 });
 
 /////////////////////////////////////////////////
