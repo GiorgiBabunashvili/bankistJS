@@ -1,9 +1,5 @@
 "use strict";
 
-/////////////////////////////////////////////////
-/////////////////////////////////////////////////
-// BANKIST APP
-
 // Data
 const account1 = {
   owner: "Jonas Schmedtmann",
@@ -82,9 +78,10 @@ const displayMovements = (movements) => {
 };
 
 //CALC DISPLAY BALANCE
-const calcDisplayBalance = (movements) => {
-  const balance = movements.reduce((acc, cur) => acc + cur, 0);
-  labelBalance.textContent = `${balance}€`;
+const calcDisplayBalance = (acc) => {
+  acc.balance = acc.movements.reduce((acc, cur) => acc + cur, 0);
+
+  labelBalance.textContent = `${acc.balance}€`;
 };
 
 //CALC DISPLAY SUMMARY
@@ -120,6 +117,18 @@ const createUsernames = (accs) => {
 
 createUsernames(accounts);
 
+//UI
+const updateUI = (acc) => {
+  //display movments
+  displayMovements(acc.movements);
+
+  //dispay balance
+  calcDisplayBalance(acc);
+
+  //display summary
+  calcDisplaySummary(acc);
+};
+
 //LOGIN
 let currentAccount;
 
@@ -142,15 +151,51 @@ btnLogin.addEventListener("click", (e) => {
     inputLoginPin.value = "";
     inputLoginPin.blur();
 
-    //display movments
-    displayMovements(currentAccount.movements);
-
-    //dispay balance
-    calcDisplayBalance(currentAccount.movements);
-
-    //display summary
-    calcDisplaySummary(currentAccount);
+    updateUI(currentAccount);
   }
+});
+
+//TRANSFER
+btnTransfer.addEventListener("click", (e) => {
+  e.preventDefault();
+  const amount = +inputTransferAmount.value;
+  const receiverAcc = accounts.find(
+    (acc) => acc.username === inputTransferTo.value
+  );
+
+  inputTransferAmount.value = inputTransferTo.value = "";
+
+  if (
+    amount > 0 &&
+    receiverAcc &&
+    currentAccount.balance >= amount &&
+    receiverAcc.username !== currentAccount.username
+  ) {
+    //transfer
+    currentAccount.movements.push(-amount);
+    receiverAcc.movements.push(amount);
+
+    //UI
+    updateUI(currentAccount);
+  }
+});
+
+btnClose.addEventListener("click", (e) => {
+  e.preventDefault();
+
+  if (
+    inputCloseUsername.value === currentAccount.username &&
+    +inputClosePin.value === currentAccount.pin
+  ) {
+    const index = accounts.findIndex(
+      (acc) => acc.username === currentAccount.username
+    );
+
+    accounts.splice(index, 1);
+    containerApp.style.opacity = 0;
+  }
+
+  inputCloseUsername.value = inputClosePin.value = "";
 });
 
 /////////////////////////////////////////////////
